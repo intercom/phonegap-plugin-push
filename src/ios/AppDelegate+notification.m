@@ -40,6 +40,11 @@ static char launchNotificationKey;
     return [self swizzled_init];
 }
 
++ (BOOL)isIntercomPushMessage:(NSDictionary *)userInfo {
+    //check if we contain the key icm_cid
+    return userInfo && [userInfo isKindOfClass:[NSDictionary class]] && userInfo[@"icm_cid"] != nil;
+}
+
 // This code will be called immediately after application:didFinishLaunchingWithOptions:. We need
 // to process notifications in cold-start situations
 - (void)createNotificationChecker:(NSNotification *)notification
@@ -47,7 +52,7 @@ static char launchNotificationKey;
     if (notification)
     {
         NSDictionary *launchOptions = [notification userInfo];
-        if (launchOptions)
+        if (launchOptions && ![AppDelegate isIntercomPushMessage:launchOptions])
             self.launchNotification = [launchOptions objectForKey: @"UIApplicationLaunchOptionsRemoteNotificationKey"];
     }
 }
@@ -64,6 +69,10 @@ static char launchNotificationKey;
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSLog(@"didReceiveNotification");
+
+    if ([AppDelegate isIntercomPushMessage:userInfo]) {
+         return;
+    }
 
     // Get application state for iOS4.x+ devices, otherwise assume active
     UIApplicationState appState = UIApplicationStateActive;

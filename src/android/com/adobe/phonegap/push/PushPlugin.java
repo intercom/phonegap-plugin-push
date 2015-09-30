@@ -36,6 +36,10 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
         return this.cordova.getActivity().getApplicationContext();
     }
 
+    public static boolean isIntercomPush(Bundle extras) {
+        return extras.containsKey("receiver") && "intercom_sdk".equals(extras.getString("receiver"));
+    }
+
     @Override
     public boolean execute(final String action, final JSONArray data, final CallbackContext callbackContext) {
         Log.v(LOG_TAG, "execute: action=" + action);
